@@ -16,7 +16,7 @@ jobs:
       with:
         node-version: lts/*
     - name: Install dependencies
-      run: npm ci    #npm install when you pushed package-lock.json 
+      run: npm install    #npm install when you pushed package-lock.json not pushed otherwise npm ci
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
     - name: Run Playwright tests
