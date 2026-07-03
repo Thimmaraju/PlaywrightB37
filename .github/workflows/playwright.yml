@@ -10,6 +10,9 @@ jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest  #windows-latest #macos-latest
+    env:
+      APP_USERNAME: Admin
+      APP_PASSWORD: admin123
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-node@v4
