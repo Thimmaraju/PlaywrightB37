@@ -1,70 +1,89 @@
 import { test, expect } from '@playwright/test';
+import fs from 'fs';
+import path from 'path';
 
-import logindata from "../../testdata/login.json"
+import logindata from '../../testdata/login.json';
+import jobtitledata from '../../testdata/addjobtitle.json';
 
-import jobtitledata from "../../testdata/addjobtitle.json"
+async function loginAndOpenAddJobTitlePage(page) {
+  await page.goto('/web/index.php/auth/login');
+  await page.getByRole('textbox', { name: 'Username' }).fill(logindata.username);
+  await page.getByRole('textbox', { name: 'Password' }).fill(logindata.password);
+  await page.getByRole('button', { name: 'Login' }).click();
 
-test("Verify add job title",{tag: "@Raju"}, async ({ page }) => {
+  await page.locator('//a[@href="/web/index.php/admin/viewAdminModule"]').click();
+  await page.locator("//span[normalize-space(text())='Job']").click();
+  await page.getByRole('menuitem', { name: 'Job Titles' }).click();
+  await page.getByRole('button', { name: 'Add' }).click();
+}
 
-    console.log("Navigating to login page")
-    await page.goto('https://opensource-demo.orangehrmlive.com/web/index.php/auth/login')
-    console.log("Launched Application")
+function getUniqueJobTitle(prefix = 'Auto Job Title') {
+  return `${prefix} ${Date.now()}`;
+}
 
-    console.log("Filling username")
-    await page.locator("input[name='username']").fill(logindata.username)
-    console.log("username Entered :" + logindata.username)
+test('should create a job title with valid details', { tag: '@Raju' }, async ({ page }) => {
+  const jobTitle = getUniqueJobTitle();
 
-    console.log("Filling password")
-    await page.locator("//input[@type='password']").fill(logindata.password)
-    console.log("Password Entered")
+  await loginAndOpenAddJobTitlePage(page);
 
-    console.log("Clicking login button")
-    await page.locator("button[type='submit']").click()
-    console.log("Login submitted")
+  await page.getByLabel(/job title/i).fill(jobTitle);
+  await page.getByPlaceholder(/type description here/i).fill(jobtitledata.jobdescription);
+  await page.getByRole('textbox', { name: /add note/i }).fill(jobtitledata.notes);
+  await page.getByRole('button', { name: 'Save' }).click();
 
-    console.log("Navigating to Admin module")
-    await page.locator('//a[@href="/web/index.php/admin/viewAdminModule"]').click()
-    console.log("Admin module opened")
+  await expect(page).toHaveURL(/viewJobTitleList/);
+  await expect(page.getByText(jobTitle)).toBeVisible();
+});
 
-    console.log("Clicking Job menu")
-    await page.locator("//span[normalize-space(text())='Job']").click()
-    console.log("Job menu expanded")
+test('should not save when job title is empty', async ({ page }) => {
+  await loginAndOpenAddJobTitlePage(page);
 
-    console.log("Selecting Job Titles")
-    await page.getByRole('menuitem', { name: 'Job Titles' }).click()
-    console.log("Job Titles page opened")
+  await page.getByRole('button', { name: 'Save' }).click();
 
-    console.log("Clicking Add button")
-    await page.getByRole('button', { name: 'Add' }).click()
-    console.log("Add job title form opened")
+  await expect(page.getByText(/required/i).first()).toBeVisible();
+  await expect(page).not.toHaveURL(/viewJobTitleList/);
+});
 
-    const jobTitle = Math.random().toString(36).substring(2, 12);
-    console.log("Generated job title: " + jobTitle)
+test('should not save a duplicate job title', async ({ page }) => {
+  const jobTitle = getUniqueJobTitle('Duplicate Title');
 
-    console.log("Filling job title")
-    await page.locator("//div[@class='oxd-input-group oxd-input-field-bottom-space']//div//input[@class='oxd-input oxd-input--active']").fill(jobTitle)
-    console.log("Job title entered")
+  await loginAndOpenAddJobTitlePage(page);
+  await page.getByLabel(/job title/i).fill(jobTitle);
+  await page.getByRole('button', { name: 'Save' }).click();
+  await expect(page).toHaveURL(/viewJobTitleList/);
 
-    console.log("Waiting for form readiness")
-    await page.waitForTimeout(5000)
-    console.log("Wait completed")
+  await page.getByRole('button', { name: 'Add' }).click();
+  await page.getByLabel(/job title/i).fill(jobTitle);
+  await page.getByRole('button', { name: 'Save' }).click();
 
-    console.log("Adding job description")
-    await page.getByPlaceholder('Type description here').fill(jobtitledata.jobdescription)
-    console.log("Job description entered")
+  await expect(page.getByText(/already exists|duplicate/i)).toBeVisible();
+});
 
-    console.log("Adding notes")
-    await page.getByRole('textbox', { name: 'Add note' }).fill(jobtitledata.notes)
-    console.log("Notes entered")
+test('should upload a valid job specification file and show the file name', async ({ page }, testInfo) => {
+  const jobTitle = getUniqueJobTitle('Uploaded Job');
+  const filePath = testInfo.outputPath('job-spec.pdf');
+  fs.writeFileSync(filePath, '%PDF-1.4\n%sample pdf');
 
-    console.log("Clicking Save")
-    await page.getByText('Save', { exact: true }).click()
-    console.log("Save clicked")
+  await loginAndOpenAddJobTitlePage(page);
+  await page.getByLabel(/job title/i).fill(jobTitle);
+  await page.locator('input[type="file"]').setInputFiles(filePath);
 
-    console.log("Verifying URL")
-    await expect(page).toHaveURL('https://opensource-demo.orangehrmlive.com/web/index.php/admin/viewJobTitleList')
-    console.log("URL verified")
+  await expect(page.getByText(path.basename(filePath))).toBeVisible();
 
-})
+  await page.getByRole('button', { name: 'Save' }).click();
+  await expect(page).toHaveURL(/viewJobTitleList/);
+});
+
+test('should allow cancel without saving the job title', async ({ page }) => {
+  const jobTitle = getUniqueJobTitle('Cancelled Job');
+
+  await loginAndOpenAddJobTitlePage(page);
+  await page.getByLabel(/job title/i).fill(jobTitle);
+  await page.getByPlaceholder(/type description here/i).fill(jobtitledata.jobdescription);
+  await page.getByRole('button', { name: 'Cancel' }).click();
+
+  await expect(page).toHaveURL(/viewJobTitleList/);
+  await expect(page.getByText(jobTitle)).not.toBeVisible();
+});
 
 
