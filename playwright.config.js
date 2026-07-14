@@ -45,6 +45,7 @@ export default defineConfig({
     screenshot : "only-on-failure",
     video: "retain-on-failure",
     headless : true,
+    testIdAttribute: "area-label"
 
     //viewport : {width: 2400, height:2400}
   },
