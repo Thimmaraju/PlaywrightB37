@@ -8,9 +8,12 @@ test('Verify logo visible', async ({ page }) => {
 });
 
 test('Verify login with Valid credentials',{tag: "@Raju"}, async ({ page }) => {
+
+  const username = "Admin"
+  const password = "admin123"
   await page.goto('/web/index.php/auth/login');
-  await page.getByRole("textbox", { name: 'Username' }).fill(process.env.APP_USERNAME);
-  await page.getByRole('textbox', { name: 'Password' }).fill(process.env.APP_PASSWORD);
+  await page.getByRole("textbox", { name: 'Username' }).fill(username);
+  await page.getByRole('textbox', { name: 'Password' }).fill(password);
   await page.getByRole('button', { name: 'Login' }).click();
   await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
   await expect(page.getByText('My Actions')).toBeVisible();
