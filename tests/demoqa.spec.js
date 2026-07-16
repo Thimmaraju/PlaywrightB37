@@ -6,7 +6,7 @@ test('test box ', async ({ page }) => {
 
     await page.goto('https://demoqa.com/text-box')
     
-    await expect(page.locator('//h1[@class="text-center"]')).toBeVisible()
+    await expect(page.locator("//h1[@class='text-center']")).toBeVisible()
 
     await expect(page.locator('//h1[@class="text-center"]')).toHaveText('Text Box')
 
