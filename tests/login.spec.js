@@ -11,7 +11,18 @@ test('Verify login with Valid credentials',{tag: "@Raju"}, async ({ page }) => {
 
   const username = "Admin"
   const password = "admin123"
-  await page.goto('/web/index.php/auth/login');
+
+  if(process.env.ENVIRONMENT == "DEV"){
+   await page.goto('www.dev.com/web/index.php/auth/login');
+  }
+  else if(process.env.ENVIRONMENT == "QA"){
+
+     await page.goto('www.qa.com/web/index.php/auth/login');
+  }
+  else if (process.env.ENVIRONMENT == "PREPROD"){
+
+     await page.goto('www.preprod.com/web/index.php/auth/login');
+  }
   await page.getByRole("textbox", { name: 'Username' }).fill(username);
   await page.getByRole('textbox', { name: 'Password' }).fill(password);
   await page.getByRole('button', { name: 'Login' }).click();

@@ -4,7 +4,7 @@ import logindata from "../../testdata/login.json"
 
 import jobtitledata from "../../testdata/addjobtitle.json"
 
-import { faker } from '@faker-js/faker';
+import { generateUniqueJobTitle } from '../../utilities/testDataUtils.js';
 
 test("Verify add job title",{tag: "@Raju"}, async ({ page }) => {
 
@@ -42,7 +42,7 @@ test("Verify add job title",{tag: "@Raju"}, async ({ page }) => {
 
 
     console.log("Filling job title")
-    await page.locator("//div[@class='oxd-input-group oxd-input-field-bottom-space']//div//input[@class='oxd-input oxd-input--active']").fill(faker.person.jobTitle())
+    await page.locator("//div[@class='oxd-input-group oxd-input-field-bottom-space']//div//input[@class='oxd-input oxd-input--active']").fill(generateUniqueJobTitle())
     console.log("Job title entered")
 
     console.log("Waiting for form readiness")

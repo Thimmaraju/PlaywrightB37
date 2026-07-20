@@ -1,7 +1,11 @@
 import { test, expect } from '@playwright/test';
 import buzzData from '../../testdata/buzz.json';
 
-test('Post a message in Buzz after login', async ({ page }) => {
+
+for(let i=0; i<10; i++)
+  {
+  
+  test(`Post a message in Buzz after login - ${i}`, async ({ page }) => {
   await page.goto('/web/index.php/auth/login');
 
   await page.getByRole('textbox', { name: 'Username' }).fill(buzzData.username);
@@ -13,8 +17,13 @@ test('Post a message in Buzz after login', async ({ page }) => {
   await page.getByRole('link', { name: 'Buzz' }).click();
   await expect(page.getByRole('heading', { name: 'Buzz' })).toBeVisible();
 
+  
   await page.getByRole('textbox', { name: "What's on your mind?" }).fill(buzzData.message);
   await page.getByRole('button', { name: 'Post' }).click();
 
   await expect(page.getByText('Successfully Saved')).toBeVisible();
 });
+
+
+}
+

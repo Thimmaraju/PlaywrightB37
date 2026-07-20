@@ -50,22 +50,40 @@ test('conditional test 2 ', async ({ page, browserName }) => {
 
   if (browserName == "chromium") {
 
-    await page.goto('https://register.rediff.com/register/register.php?FormName=user_details')
+    await page.goto('https://www.flipkart.com/')
 
-    //await page.locator('//input[@type="checkbox"]').check()
+  }
+  else if (browserName == "firefox") {
 
-    // await page.waitForTimeout(3000)
+    await page.goto('https://www.myntra.com/')
+  }
+  else if (browserName == "webkit") {
 
-    //ischecked() // true checked  // false // unchecked 
+    await page.goto('https://www.amazon.in/')
+  }
 
-    const statusoftheCheckbox = await page.locator('//input[@type="checkbox"]').isChecked()
+});
 
-    console.log(statusoftheCheckbox)
 
-    if (!statusoftheCheckbox) {
 
-      await page.locator('//input[@type="checkbox"]').check()
+test('conditional test 3', async ({ page, browserName }) => {
+
+  switch (browserName) {
+    case "chromium": {
+      await page.goto('https://www.flipkart.com/')
     }
+
+    break;
+    case "firefox": {
+
+      await page.goto('https://www.myntra.com/')
+    }
+    break;
+
+    case "webkit": {
+      await page.goto('https://www.amazon.in/')
+    }
+    break;
 
   }
 
