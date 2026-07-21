@@ -9,12 +9,13 @@ const creds = {
 for (let data in creds) {
 
 
-    test(`Verify login with invalid credentials - ${data}`, async ({ page }) => {
+    test(`Verify login with invalid credentials - ${data}`, async function ({ page }) {
         await page.goto('/web/index.php/auth/login');
         await page.getByRole('textbox', { name: 'Username' }).fill(creds[data].username);
         await page.getByRole('textbox', { name: 'Password' }).fill(creds[data].password);
         await page.getByRole('button', { name: 'Login' }).click();
         await expect(page.getByText('Invalid credentials')).toBeVisible();
+        await page.close()
 
     });
 
