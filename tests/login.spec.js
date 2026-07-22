@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
 
+
+const xyz= ["Admin", "admin123"]
 test('Verify logo visible', async ({ page }) => {
 
     await page.goto('/web/index.php/auth/login');
@@ -32,9 +34,12 @@ test('Verify login with Valid credentials',{tag: "@Raju"}, async ({ page }) => {
 });
 
 test('Verify login with valid username and Invalid password', async ({ page }) => {
+  xyz[1] = "Raju"
+
+  console.log(xyz)
   await page.goto('/web/index.php/auth/login');
   await page.getByRole('textbox', { name: 'Username' }).click();
-  await page.getByRole('textbox', { name: 'Username' }).fill('Admin');
+  await page.getByRole('textbox', { name: 'Username' }).fill(xyz[0]);
   await page.getByRole('textbox', { name: 'Password' }).click();
   await page.getByRole('textbox', { name: 'Password' }).fill('hfrujreiufberhb');
   await page.getByRole('button', { name: 'Login' }).click();
